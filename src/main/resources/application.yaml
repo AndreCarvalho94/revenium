@@ -1,0 +1,26 @@
+# Configurações padrão para rodar em containers; podem ser sobrescritas por variáveis de ambiente
+spring:
+  profiles:
+    active: local
+  application:
+    name: revenium
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/revenium}
+    username: ${SPRING_DATASOURCE_USERNAME:revenium}
+    password: ${SPRING_DATASOURCE_PASSWORD:revenium}
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:redis}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+
+server:
+  port: ${SERVER_PORT:8080}
+
