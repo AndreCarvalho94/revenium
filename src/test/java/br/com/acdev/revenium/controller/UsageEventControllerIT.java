@@ -39,10 +39,10 @@ class UsageEventControllerIT {
     private String getUsageEvent() {
         return """
                 {
-                    "eventId": "uuid",
-                    "timestamp": "ISO-8601",
-                    "tenantId": "string",
-                    "customerId": "string",
+                    "eventId": "33333333-3333-3333-3333-333333333333",
+                    "timestamp": "2025-01-01T10:15:30Z",
+                    "tenantId": "11111111-1111-1111-1111-111111111111",
+                    "customerId": "22222222-2222-2222-2222-222222222222",
                     "apiEndpoint": "/api/completion",
                     "metadata": {
                         "tokens": 1500,
