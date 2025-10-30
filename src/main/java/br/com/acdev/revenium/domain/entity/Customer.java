@@ -1,4 +1,4 @@
-package br.com.acdev.revenium.domain;
+package br.com.acdev.revenium.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

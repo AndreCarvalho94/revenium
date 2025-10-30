@@ -1,4 +1,4 @@
-package br.com.acdev.revenium.domain;
+package br.com.acdev.revenium.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,16 +12,19 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "aggregation_windows")
+@Table(name = "usage_events")
 @Getter
 @Setter
 @NoArgsConstructor
-public class AggregationWindow {
+public class UsageEvent {
 
     @Id
     @GeneratedValue
     @UuidGenerator
     private UUID id;
+
+    @Column(name = "event_id", nullable = false, length = 36)
+    private String eventId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "tenant_id", nullable = false)
@@ -37,14 +40,14 @@ public class AggregationWindow {
     @Column(name = "customer_id", insertable = false, updatable = false)
     private UUID customerId;
 
-    @Column(name = "window_start", nullable = false)
-    private Instant windowStart;
+    @Column(name = "event_timestamp", nullable = false)
+    private Instant timestamp;
 
-    @Column(name = "window_end", nullable = false)
-    private Instant windowEnd;
+    @Column(name = "endpoint", nullable = false, length = 255)
+    private String apiEndpoint;
 
-    @Column(name = "aggregations", columnDefinition = "jsonb", nullable = false)
-    private String aggregations;
+    @Column(name = "metadata", columnDefinition = "jsonb", nullable = false)
+    private String metadata;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

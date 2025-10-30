@@ -1,6 +1,6 @@
 package br.com.acdev.revenium.repository;
 
-import br.com.acdev.revenium.domain.AggregationWindow;
+import br.com.acdev.revenium.domain.entity.AggregationWindow;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.Instant;

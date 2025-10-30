@@ -1,8 +1,8 @@
 package br.com.acdev.revenium.service;
 
-import br.com.acdev.revenium.domain.Customer;
-import br.com.acdev.revenium.domain.Tenant;
-import br.com.acdev.revenium.domain.UsageEvent;
+import br.com.acdev.revenium.domain.entity.Customer;
+import br.com.acdev.revenium.domain.entity.Tenant;
+import br.com.acdev.revenium.domain.entity.UsageEvent;
 import br.com.acdev.revenium.repository.UsageEventRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
