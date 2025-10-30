@@ -6,6 +6,7 @@ import br.com.acdev.revenium.domain.Tenant;
 import br.com.acdev.revenium.repository.AggregationWindowRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,16 +17,13 @@ import java.util.UUID;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class AggregationWindowService {
 
     private final AggregationWindowRepository repository;
 
     @PersistenceContext
     private EntityManager entityManager;
-
-    public AggregationWindowService(AggregationWindowRepository repository) {
-        this.repository = repository;
-    }
 
     public AggregationWindow create(UUID tenantId,
                                     UUID customerId,

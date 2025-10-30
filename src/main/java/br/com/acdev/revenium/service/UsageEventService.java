@@ -6,6 +6,7 @@ import br.com.acdev.revenium.domain.UsageEvent;
 import br.com.acdev.revenium.repository.UsageEventRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,16 +17,13 @@ import java.util.UUID;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UsageEventService {
 
     private final UsageEventRepository repository;
 
     @PersistenceContext
     private EntityManager entityManager;
-
-    public UsageEventService(UsageEventRepository repository) {
-        this.repository = repository;
-    }
 
     public UsageEvent create(UUID tenantId,
                              UUID customerId,

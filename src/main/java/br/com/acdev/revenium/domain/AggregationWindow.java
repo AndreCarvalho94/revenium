@@ -1,6 +1,9 @@
 package br.com.acdev.revenium.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
@@ -10,6 +13,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "aggregation_windows")
+@Getter
+@Setter
+@NoArgsConstructor
 public class AggregationWindow {
 
     @Id
@@ -47,32 +53,4 @@ public class AggregationWindow {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
-    public Tenant getTenant() { return tenant; }
-    public void setTenant(Tenant tenant) { this.tenant = tenant; }
-
-    public UUID getTenantId() { return tenantId; }
-
-    public Customer getCustomer() { return customer; }
-    public void setCustomer(Customer customer) { this.customer = customer; }
-
-    public UUID getCustomerId() { return customerId; }
-
-    public Instant getWindowStart() { return windowStart; }
-    public void setWindowStart(Instant windowStart) { this.windowStart = windowStart; }
-
-    public Instant getWindowEnd() { return windowEnd; }
-    public void setWindowEnd(Instant windowEnd) { this.windowEnd = windowEnd; }
-
-    public String getAggregations() { return aggregations; }
-    public void setAggregations(String aggregations) { this.aggregations = aggregations; }
-
-    public Instant getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-
-    public Instant getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

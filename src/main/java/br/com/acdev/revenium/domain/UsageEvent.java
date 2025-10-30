@@ -1,6 +1,9 @@
 package br.com.acdev.revenium.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
@@ -10,6 +13,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "usage_events")
+@Getter
+@Setter
+@NoArgsConstructor
 public class UsageEvent {
 
     @Id
@@ -50,35 +56,4 @@ public class UsageEvent {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
-    public String getEventId() { return eventId; }
-    public void setEventId(String eventId) { this.eventId = eventId; }
-
-    public Tenant getTenant() { return tenant; }
-    public void setTenant(Tenant tenant) { this.tenant = tenant; }
-
-    public UUID getTenantId() { return tenantId; }
-
-    public Customer getCustomer() { return customer; }
-    public void setCustomer(Customer customer) { this.customer = customer; }
-
-    public UUID getCustomerId() { return customerId; }
-
-    public Instant getTimestamp() { return timestamp; }
-    public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
-
-    public String getApiEndpoint() { return apiEndpoint; }
-    public void setApiEndpoint(String apiEndpoint) { this.apiEndpoint = apiEndpoint; }
-
-    public String getMetadata() { return metadata; }
-    public void setMetadata(String metadata) { this.metadata = metadata; }
-
-    public Instant getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-
-    public Instant getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }
