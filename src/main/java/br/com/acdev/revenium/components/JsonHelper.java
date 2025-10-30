@@ -1,4 +1,4 @@
-package br.com.acdev.revenium.config;
+package br.com.acdev.revenium.components;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

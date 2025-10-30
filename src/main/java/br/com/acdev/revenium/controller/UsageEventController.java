@@ -1,6 +1,6 @@
 package br.com.acdev.revenium.controller;
 
-import br.com.acdev.revenium.config.JsonHelper;
+import br.com.acdev.revenium.components.JsonHelper;
 import br.com.acdev.revenium.controller.dto.UsageEventRequest;
 import br.com.acdev.revenium.domain.entity.UsageEvent;
 import br.com.acdev.revenium.domain.mapper.UsageEventMapper;

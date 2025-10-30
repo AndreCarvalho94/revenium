@@ -1,6 +1,6 @@
 package br.com.acdev.revenium.domain.mapper;
 
-import br.com.acdev.revenium.config.JsonHelper;
+import br.com.acdev.revenium.components.JsonHelper;
 import br.com.acdev.revenium.controller.dto.UsageEventRequest;
 import br.com.acdev.revenium.domain.entity.Customer;
 import br.com.acdev.revenium.domain.entity.Tenant;

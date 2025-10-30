@@ -1,5 +1,6 @@
 package br.com.acdev.revenium.service;
 
+import br.com.acdev.revenium.components.WindowCalculator;
 import br.com.acdev.revenium.config.ReveniumProperties;
 import br.com.acdev.revenium.domain.entity.UsageEvent;
 import org.junit.jupiter.api.BeforeEach;

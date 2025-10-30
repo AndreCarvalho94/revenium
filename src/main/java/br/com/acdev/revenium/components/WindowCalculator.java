@@ -1,4 +1,4 @@
-package br.com.acdev.revenium.service;
+package br.com.acdev.revenium.components;
 
 import br.com.acdev.revenium.config.ReveniumProperties;
 import br.com.acdev.revenium.domain.entity.UsageEvent;

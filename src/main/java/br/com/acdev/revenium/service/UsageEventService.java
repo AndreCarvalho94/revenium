@@ -1,6 +1,7 @@
 package br.com.acdev.revenium.service;
 
-import br.com.acdev.revenium.config.JsonHelper;
+import br.com.acdev.revenium.components.JsonHelper;
+import br.com.acdev.revenium.components.WindowCalculator;
 import br.com.acdev.revenium.domain.Metadata;
 import br.com.acdev.revenium.domain.entity.UsageEvent;
 import br.com.acdev.revenium.repository.UsageEventRepository;
