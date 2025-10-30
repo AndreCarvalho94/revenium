@@ -1,4 +1,4 @@
-package br.com.acdev.revenium;
+package br.com.acdev.revenium.config;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
