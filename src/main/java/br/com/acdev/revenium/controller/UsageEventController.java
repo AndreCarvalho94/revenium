@@ -28,7 +28,7 @@ public class UsageEventController {
     public ResponseEntity<Void> create(@RequestBody UsageEventRequest request) {
         log.info("Received usage event: {}", request);
         UsageEvent event = usageEventMapper.toEntity(request, jsonHelper);
-        usageEventService.save(event);
+        usageEventService.create(event);
         return ResponseEntity.ok().build();
     }
 }

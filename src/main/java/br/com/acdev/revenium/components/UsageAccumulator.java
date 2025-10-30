@@ -14,47 +14,27 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class RedisUsageAccumulator {
+public class UsageAccumulator {
 
     private final StringRedisTemplate redis;
     private final WindowCalculator windowCalculator;
     private final ReveniumProperties properties;
 
-    /**
-     * Conveniência: calcula o windowStart a partir do evento e delega para a sobrecarga principal.
-     */
+
     public void accumulate(UsageEvent event, Metadata metadata) {
-        Instant ws = windowCalculator.windowStart(event.getTimestamp());
-        accumulate(
-                event.getTenantId(),
-                event.getCustomerId(),
-                ws,
-                event.getApiEndpoint(),
-                metadata.model(),
-                metadata.tokens(),
-                metadata.inputTokens(),
-                metadata.outputTokens(),
-                metadata.latencyMs()
-        );
+        Instant windowStart = windowCalculator.windowStart(event.getTimestamp());
+        String base = keyBase(event.getTenantId(), event.getCustomerId(), windowStart);
+
+        accumulateSummary(base, windowStart,
+                metadata.tokens(), metadata.inputTokens(), metadata.outputTokens(), metadata.latencyMs());
+
+        accumulateByEndpoint(base, windowStart, event.getApiEndpoint(), metadata.tokens());
+        accumulateByModel(base, windowStart, metadata.model(), metadata.tokens());
     }
 
-    /**
-     * API simplificada: assume dados válidos.
-     */
-    public void accumulate(
-            UUID tenantId,
-            UUID customerId,
-            Instant windowStart,
-            String endpoint,
-            String model,
-            BigInteger tokens,
-            BigInteger inputTokens,
-            BigInteger outputTokens,
-            BigInteger latencyMs
-    ) {
-        String base = keyBase(tenantId, customerId, windowStart);
 
-        // Resumo
+    private void accumulateSummary(String base, Instant windowStart,
+                                   BigInteger tokens, BigInteger inputTokens, BigInteger outputTokens, BigInteger latencyMs) {
         String summaryKey = base + ":summary";
         redis.opsForHash().increment(summaryKey, "totalCalls", 1);
         redis.opsForHash().increment(summaryKey, "totalTokens", tokens.longValueExact());
@@ -62,16 +42,18 @@ public class RedisUsageAccumulator {
         redis.opsForHash().increment(summaryKey, "totalOutputTokens", outputTokens.longValueExact());
         redis.opsForHash().increment(summaryKey, "totalLatencyMs", latencyMs.longValueExact());
         applyExpire(summaryKey, windowStart);
+    }
 
-        // Por endpoint
+    private void accumulateByEndpoint(String base, Instant windowStart, String endpoint, BigInteger tokens) {
         String epCallsKey = base + ":byEndpoint:calls";
         String epTokensKey = base + ":byEndpoint:tokens";
         redis.opsForHash().increment(epCallsKey, endpoint, 1);
         redis.opsForHash().increment(epTokensKey, endpoint, tokens.longValueExact());
         applyExpire(epCallsKey, windowStart);
         applyExpire(epTokensKey, windowStart);
+    }
 
-        // Por modelo
+    private void accumulateByModel(String base, Instant windowStart, String model, BigInteger tokens) {
         String mCallsKey = base + ":byModel:calls";
         String mTokensKey = base + ":byModel:tokens";
         redis.opsForHash().increment(mCallsKey, model, 1);
