@@ -40,3 +40,4 @@ server:
 revenium:
   aggregation:
     window-seconds: 30
+    hot-ttl-seconds: 300

@@ -16,8 +16,7 @@ class WindowCalculatorTest {
 
     @BeforeEach
     void setup() {
-        // Define janela de 30s para os testes
-        ReveniumProperties props = new ReveniumProperties(new ReveniumProperties.AggregationProperties(30));
+        ReveniumProperties props = new ReveniumProperties(new ReveniumProperties.AggregationProperties(30, 300));
         calc = new WindowCalculator(props);
     }
 
@@ -49,8 +48,8 @@ class WindowCalculatorTest {
 
     @Test
     void windowStart_handlesNegativeEpochCorrectly() {
-        Instant ts = Instant.ofEpochSecond(-1); // 1969-12-31T23:59:59Z
-        Instant expected = Instant.ofEpochSecond(-30); // 1969-12-31T23:59:30Z
+        Instant ts = Instant.ofEpochSecond(-1);
+        Instant expected = Instant.ofEpochSecond(-30);
         assertEquals(expected, calc.windowStart(ts));
     }
 
@@ -71,4 +70,3 @@ class WindowCalculatorTest {
         assertEquals(expected, calc.windowStart(ev));
     }
 }
-
