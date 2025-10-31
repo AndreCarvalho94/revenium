@@ -23,7 +23,7 @@ public class UsageAccumulator {
 
     public void accumulate(UsageEvent event, Metadata metadata) {
         Instant windowStart = windowCalculator.windowStart(event.getTimestamp());
-        String base = keyBase(event.getTenantId(), event.getCustomerId(), windowStart);
+        String base = KeyBaseBuilder.execute(event.getTenantId(), event.getCustomerId(), windowStart);
 
         accumulateSummary(base, windowStart,
                 metadata.tokens(), metadata.inputTokens(), metadata.outputTokens(), metadata.latencyMs());
@@ -60,11 +60,6 @@ public class UsageAccumulator {
         redis.opsForHash().increment(mTokensKey, model, tokens.longValueExact());
         applyExpire(mCallsKey, windowStart);
         applyExpire(mTokensKey, windowStart);
-    }
-
-    private String keyBase(UUID tenantId, UUID customerId, Instant windowStart) {
-        long startEpoch = windowStart.getEpochSecond();
-        return "usage:win:" + tenantId + ":" + customerId + ":" + startEpoch;
     }
 
     private void applyExpire(String key, Instant windowStart) {
