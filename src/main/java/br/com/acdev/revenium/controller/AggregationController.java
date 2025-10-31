@@ -20,9 +20,9 @@ public class AggregationController {
     private final AggregationWindowService aggregationWindowService;
 
     @GetMapping("/current")
-    public ResponseEntity<Aggregations> getCurrent(@RequestParam UUID tenantId,
-                                                   @RequestParam UUID customerId) {
-        Optional<Aggregations> opt = aggregationWindowService.getCurrentAggregations(tenantId, customerId);
+    public ResponseEntity<Aggregations> read(@RequestParam UUID tenantId,
+                                             @RequestParam UUID customerId) {
+        Optional<Aggregations> opt = aggregationWindowService.readCurrentAggregation(tenantId, customerId);
         return opt.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
     }
 }

@@ -2,7 +2,6 @@ package br.com.acdev.revenium.service;
 
 import br.com.acdev.revenium.components.WindowCalculator;
 import br.com.acdev.revenium.domain.Aggregations;
-import br.com.acdev.revenium.repository.AggregationWindowRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.data.redis.core.HashOperations;
@@ -19,10 +18,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-public class AggregationWindowServiceTest {
+class AggregationWindowServiceTest {
 
     @Test
-    void getCurrentAggregations_returnsAggregations() {
+    void readCurrentAggregations_returnsAggregation() {
         StringRedisTemplate redis = Mockito.mock(StringRedisTemplate.class);
         WindowCalculator windowCalculator = Mockito.mock(WindowCalculator.class);
 
@@ -71,7 +70,7 @@ public class AggregationWindowServiceTest {
         when(hashOps.entries(Mockito.eq(modelCallsKey))).thenReturn(modelCalls);
         when(hashOps.entries(Mockito.eq(modelTokensKey))).thenReturn(modelTokens);
 
-        Optional<Aggregations> resOpt = service.getCurrentAggregations(tenant, customer);
+        Optional<Aggregations> resOpt = service.readCurrentAggregation(tenant, customer);
         assertTrue(resOpt.isPresent());
         Aggregations res = resOpt.get();
         assertEquals(0, res.avgLatencyMs().compareTo(new BigDecimal("250.00")));

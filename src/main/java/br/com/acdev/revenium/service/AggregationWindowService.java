@@ -22,7 +22,7 @@ public class AggregationWindowService {
     private final StringRedisTemplate redis;
     private final WindowCalculator windowCalculator;
 
-    public Optional<Aggregations> getCurrentAggregations(UUID tenantId, UUID customerId) {
+    public Optional<Aggregations> readCurrentAggregation(UUID tenantId, UUID customerId) {
         Instant now = Instant.now();
         Instant windowStart = windowCalculator.windowStart(now);
         String base = KeyBaseBuilder.execute(tenantId, customerId, windowStart);
