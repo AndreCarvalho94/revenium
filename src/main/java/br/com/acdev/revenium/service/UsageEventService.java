@@ -24,17 +24,19 @@ public class UsageEventService {
 
     public UsageEvent create(UsageEvent event) {
         Metadata metadata = jsonHelper.toObject(event.getMetadata(), Metadata.class);
-        // Determine if the event belongs to a past (already closed) window
         Instant eventWindowStart = windowCalculator.windowStart(event.getTimestamp());
         Instant currentWindowStart = windowCalculator.windowStart(Instant.now());
         boolean isLate = eventWindowStart.isBefore(currentWindowStart);
         if (isLate) {
-            // Ignore for hot path (Redis) but persist the raw event for later reprocessing
-            log.debug("Ignoring late event for aggregation. eventId={}, eventTs={}, eventWindowStart={}, currentWindowStart={}",
-                    event.getEventId(), event.getTimestamp(), eventWindowStart, currentWindowStart);
+            logLateEvent(event, eventWindowStart, currentWindowStart);
         } else {
             accumulator.accumulate(event, metadata);
         }
         return repository.save(event);
+    }
+
+    private void logLateEvent(UsageEvent event, Instant eventWindowStart, Instant currentWindowStart) {
+        log.debug("Ignoring late event for aggregation. eventId={}, eventTs={}, eventWindowStart={}, currentWindowStart={}",
+                event.getEventId(), event.getTimestamp(), eventWindowStart, currentWindowStart);
     }
 }
