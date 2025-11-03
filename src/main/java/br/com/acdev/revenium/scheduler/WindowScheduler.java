@@ -1,6 +1,8 @@
 package br.com.acdev.revenium.scheduler;
 
 import br.com.acdev.revenium.components.KeyBaseBuilder;
+import br.com.acdev.revenium.kafka.WindowProducer;
+import br.com.acdev.revenium.service.WindowService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,33 +16,27 @@ import java.util.Set;
 @Slf4j
 public class WindowScheduler {
 
+    private final WindowService windowService;
+    private final WindowProducer producer;
     private final StringRedisTemplate redis;
 
-    // poll zset for windows to close every 5 seconds (configurable via property scheduler.poll-ms)
     @Scheduled(fixedDelayString = "${scheduler.poll-ms:5000}", initialDelayString = "${scheduler.initial-delay-ms:2000}")
     public void pollOpenWindows() {
-        String zkey = KeyBaseBuilder.OPEN_WINDOWS_KEY;
-        try {
-            Set<String> items = redis.opsForZSet().range(zkey, 0, 10);
-            if (items == null || items.isEmpty()) {
-                log.debug("No open windows found in zset {}", zkey);
-                return;
+        Set<String> claimed = windowService.claimOpenWindows(10);
+        if (claimed == null || claimed.isEmpty()) {
+            log.info("No open windows claimed");
+            return;
+        }
+        for (String window : claimed) {
+            log.info("Claimed window to close: {}", window);
+            boolean ok = producer.publishWindow(window);
+            if (!ok) {
+                // re-queue by adding back to the zset with the same score (take score from window string if encoded)
+                // as we don't parse the base we simply reinsert with current timestamp to retry later
+                long score = System.currentTimeMillis() / 1000L;
+                redis.opsForZSet().add(KeyBaseBuilder.OPEN_WINDOWS_KEY, window, score);
+                log.warn("Re-queued window {} after failed publish", window);
             }
-            for (String item : items) {
-                try {
-                    Long removed = redis.opsForZSet().remove(zkey, item);
-                    if (removed != null && removed > 0) {
-                        log.info("Scheduler popped window from zset {} -> {}", zkey, item);
-                        // here we would publish to Kafka or enqueue for processing
-                    } else {
-                        log.debug("Window {} was already removed by another instance", item);
-                    }
-                } catch (Throwable t) {
-                    log.error("Failed to remove/process window {} from zset {}: {}", item, zkey, t.toString());
-                }
-            }
-        } catch (Throwable t) {
-            log.error("Error while polling open windows zset {}: {}", zkey, t.toString());
         }
     }
 }
