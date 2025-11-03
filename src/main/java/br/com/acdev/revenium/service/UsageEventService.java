@@ -23,6 +23,7 @@ public class UsageEventService {
     private final WindowCalculator windowCalculator;
 
     public UsageEvent create(UsageEvent event) {
+        UsageEvent saved = repository.save(event);
         Metadata metadata = jsonHelper.toObject(event.getMetadata(), Metadata.class);
         Instant eventWindowStart = windowCalculator.windowStart(event.getTimestamp());
         Instant currentWindowStart = windowCalculator.windowStart(Instant.now());
@@ -32,11 +33,11 @@ public class UsageEventService {
         } else {
             accumulator.accumulate(event, metadata);
         }
-        return repository.save(event);
+        return saved;
     }
 
     private void logLateEvent(UsageEvent event, Instant eventWindowStart, Instant currentWindowStart) {
-        log.debug("Ignoring late event for aggregation. eventId={}, eventTs={}, eventWindowStart={}, currentWindowStart={}",
+        log.info("Ignoring late event for aggregation. eventId={}, eventTs={}, eventWindowStart={}, currentWindowStart={}",
                 event.getEventId(), event.getTimestamp(), eventWindowStart, currentWindowStart);
     }
 }

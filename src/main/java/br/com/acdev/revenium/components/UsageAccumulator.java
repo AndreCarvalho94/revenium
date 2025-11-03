@@ -29,7 +29,7 @@ public class UsageAccumulator {
         String openWindowsKey = KeyBaseBuilder.OPEN_WINDOWS_KEY;
         long score = windowEnd.getEpochSecond();
         redis.opsForZSet().add(openWindowsKey, base, score);
-        log.debug("Marked window as open in zset key={} score={} base={}", openWindowsKey, score, base);
+        log.info("Marked window as open in zset key={} score={} base={}", openWindowsKey, score, base);
 
         String summaryKey = KeyBaseBuilder.summaryKey(event.getTenantId(), event.getCustomerId(), windowStart);
         accumulateSummaryKey(summaryKey, windowStart,
