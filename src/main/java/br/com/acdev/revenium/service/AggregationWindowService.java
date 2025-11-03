@@ -96,4 +96,11 @@ public class AggregationWindowService {
         }
         return out;
     }
+
+    public List<AggregationWindow> listPersistedAggregations(UUID tenantId, UUID customerId, Instant from, Instant to) {
+        if (from != null && to != null) {
+            return aggregationWindowRepository.findByTenantIdAndCustomerIdAndWindowStartBetweenOrderByWindowStartAsc(tenantId, customerId, from, to);
+        }
+        return aggregationWindowRepository.findByTenantIdAndCustomerIdOrderByWindowStartDesc(tenantId, customerId);
+    }
 }
