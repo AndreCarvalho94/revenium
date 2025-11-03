@@ -13,17 +13,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j
-public class WindowService {
+public class ClaimReadyWindowToClose {
 
     private final StringRedisTemplate redis;
     private static final String ZSET_KEY = KeyBaseBuilder.OPEN_WINDOWS_KEY;
 
 
-    @SuppressWarnings("rawtypes")
-    public Set<String> claimReadyWindows(int maxItems) {
+    public Set<String> execute(int maxItems) {
         long nowSeconds = Instant.now().getEpochSecond();
 
         String lua = """

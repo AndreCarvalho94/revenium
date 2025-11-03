@@ -1,5 +1,7 @@
-package br.com.acdev.revenium.components;
+package br.com.acdev.revenium.service;
 
+import br.com.acdev.revenium.components.KeyBaseBuilder;
+import br.com.acdev.revenium.components.WindowCalculator;
 import br.com.acdev.revenium.config.ReveniumProperties;
 import br.com.acdev.revenium.domain.Metadata;
 import br.com.acdev.revenium.domain.entity.UsageEvent;

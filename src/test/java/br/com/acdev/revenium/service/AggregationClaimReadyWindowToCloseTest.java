@@ -1,7 +1,10 @@
 package br.com.acdev.revenium.service;
 
+import br.com.acdev.revenium.components.KeyBaseBuilder;
 import br.com.acdev.revenium.components.WindowCalculator;
 import br.com.acdev.revenium.domain.Aggregations;
+import br.com.acdev.revenium.repository.AggregationWindowRepository;
+import br.com.acdev.revenium.components.JsonHelper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.data.redis.core.HashOperations;
@@ -18,22 +21,24 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-class AggregationWindowServiceTest {
+class AggregationClaimReadyWindowToCloseTest {
 
     @Test
     void readCurrentAggregations_returnsAggregation() {
         StringRedisTemplate redis = Mockito.mock(StringRedisTemplate.class);
         WindowCalculator windowCalculator = Mockito.mock(WindowCalculator.class);
+        AggregationWindowRepository repo = Mockito.mock(AggregationWindowRepository.class);
+        JsonHelper jsonHelper = Mockito.mock(JsonHelper.class);
 
-        AggregationWindowService service = new AggregationWindowService(redis, windowCalculator);
+        AggregationWindowService service = new AggregationWindowService(redis, windowCalculator, repo, jsonHelper);
 
         UUID tenant = UUID.randomUUID();
         UUID customer = UUID.randomUUID();
         Instant windowStart = Instant.ofEpochSecond(1_700_000_000L);
         when(windowCalculator.windowStart(any(Instant.class))).thenReturn(windowStart);
 
-        String base = "usage:win:" + tenant + ":" + customer + ":" + windowStart.getEpochSecond();
-        String summaryKey = base + ":summary";
+        String base = KeyBaseBuilder.execute(tenant, customer, windowStart);
+        String summaryKey = KeyBaseBuilder.summaryKey(tenant, customer, windowStart);
         String epCallsKey = base + ":byEndpoint:calls";
         String epTokensKey = base + ":byEndpoint:tokens";
         String modelCallsKey = base + ":byModel:calls";
@@ -64,11 +69,11 @@ class AggregationWindowServiceTest {
         Map<Object, Object> modelTokens = new HashMap<>();
         modelTokens.put("m1", "30");
 
-        when(hashOps.entries(Mockito.eq(summaryKey))).thenReturn(summary);
-        when(hashOps.entries(Mockito.eq(epCallsKey))).thenReturn(epCalls);
-        when(hashOps.entries(Mockito.eq(epTokensKey))).thenReturn(epTokens);
-        when(hashOps.entries(Mockito.eq(modelCallsKey))).thenReturn(modelCalls);
-        when(hashOps.entries(Mockito.eq(modelTokensKey))).thenReturn(modelTokens);
+        when(hashOps.entries(summaryKey)).thenReturn(summary);
+        when(hashOps.entries(epCallsKey)).thenReturn(epCalls);
+        when(hashOps.entries(epTokensKey)).thenReturn(epTokens);
+        when(hashOps.entries(modelCallsKey)).thenReturn(modelCalls);
+        when(hashOps.entries(modelTokensKey)).thenReturn(modelTokens);
 
         Optional<Aggregations> resOpt = service.readCurrentAggregation(tenant, customer);
         assertTrue(resOpt.isPresent());
@@ -88,4 +93,3 @@ class AggregationWindowServiceTest {
         assertEquals(30, res.byModel().get("m1").tokens().intValue());
     }
 }
-

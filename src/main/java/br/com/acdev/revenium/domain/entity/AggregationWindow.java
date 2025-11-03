@@ -2,39 +2,26 @@ package br.com.acdev.revenium.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.UuidGenerator;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
-@Entity
-@Table(name = "aggregation_windows")
 @Getter
 @Setter
-@NoArgsConstructor
+@Entity
+@Table(name = "aggregation_window")
 public class AggregationWindow {
 
     @Id
-    @GeneratedValue
-    @UuidGenerator
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "tenant_id", nullable = false)
-    private Tenant tenant;
-
-    @Column(name = "tenant_id", insertable = false, updatable = false)
+    @Column(name = "tenant_id", nullable = false)
     private UUID tenantId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
-
-    @Column(name = "customer_id", insertable = false, updatable = false)
+    @Column(name = "customer_id", nullable = false)
     private UUID customerId;
 
     @Column(name = "window_start", nullable = false)
@@ -43,14 +30,35 @@ public class AggregationWindow {
     @Column(name = "window_end", nullable = false)
     private Instant windowEnd;
 
-    @Column(name = "aggregations", columnDefinition = "jsonb", nullable = false)
-    private String aggregations;
+    @Column(name = "total_calls")
+    private Long totalCalls;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "total_tokens")
+    private Long totalTokens;
+
+    @Column(name = "avg_latency_ms", precision = 10, scale = 2)
+    private BigDecimal avgLatencyMs;
+
+    @Column(name = "aggregation_data", columnDefinition = "jsonb")
+    private String aggregationData;
+
+    @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 
-    @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        Instant now = Instant.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = Instant.now();
+    }
+
 }
+

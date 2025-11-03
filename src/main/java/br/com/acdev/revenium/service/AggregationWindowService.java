@@ -4,6 +4,9 @@ import br.com.acdev.revenium.components.Commons;
 import br.com.acdev.revenium.components.KeyBaseBuilder;
 import br.com.acdev.revenium.components.WindowCalculator;
 import br.com.acdev.revenium.domain.Aggregations;
+import br.com.acdev.revenium.domain.entity.AggregationWindow;
+import br.com.acdev.revenium.repository.AggregationWindowRepository;
+import br.com.acdev.revenium.components.JsonHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -21,12 +24,13 @@ import java.util.*;
 public class AggregationWindowService {
     private final StringRedisTemplate redis;
     private final WindowCalculator windowCalculator;
+    private final AggregationWindowRepository aggregationWindowRepository;
+    private final JsonHelper jsonHelper;
 
     public Optional<Aggregations> readCurrentAggregation(UUID tenantId, UUID customerId) {
         Instant now = Instant.now();
         Instant windowStart = windowCalculator.windowStart(now);
-        String base = KeyBaseBuilder.execute(tenantId, customerId, windowStart);
-        String summaryKey = base + ":summary";
+        String summaryKey = KeyBaseBuilder.summaryKey(tenantId, customerId, windowStart);
         boolean hasSummary = redis.hasKey(summaryKey);
         if (!hasSummary) {
             return Optional.empty();
@@ -41,10 +45,30 @@ public class AggregationWindowService {
         if (totalCalls != null && totalCalls.compareTo(BigInteger.ZERO) > 0 && totalLatencyMs != null) {
             avgLatencyMs = new BigDecimal(totalLatencyMs).divide(new BigDecimal(totalCalls), 2, RoundingMode.HALF_UP);
         }
-        Map<String, Aggregations.SubAggregation> byEndpoint = buildSubAggregations(redis.opsForHash().entries(base + ":byEndpoint:calls"), redis.opsForHash().entries(base + ":byEndpoint:tokens"));
-        Map<String, Aggregations.SubAggregation> byModel = buildSubAggregations(redis.opsForHash().entries(base + ":byModel:calls"), redis.opsForHash().entries(base + ":byModel:tokens"));
+        Map<String, Aggregations.SubAggregation> byEndpoint = buildSubAggregations(
+                redis.opsForHash().entries(KeyBaseBuilder.byEndpointCallsKey(tenantId, customerId, windowStart)),
+                redis.opsForHash().entries(KeyBaseBuilder.byEndpointTokensKey(tenantId, customerId, windowStart))
+        );
+        Map<String, Aggregations.SubAggregation> byModel = buildSubAggregations(
+                redis.opsForHash().entries(KeyBaseBuilder.byModelCallsKey(tenantId, customerId, windowStart)),
+                redis.opsForHash().entries(KeyBaseBuilder.byModelTokensKey(tenantId, customerId, windowStart))
+        );
         Aggregations aggregations = Aggregations.builder().totalCalls(Commons.nvl(totalCalls)).totalTokens(Commons.nvl(totalTokens)).totalInputTokens(Commons.nvl(totalInputTokens)).totalOutputTokens(Commons.nvl(totalOutputTokens)).avgLatencyMs(avgLatencyMs).byEndpoint(byEndpoint).byModel(byModel).build();
         return Optional.of(aggregations);
+    }
+
+    public void persistAggregation(UUID tenantId, UUID customerId, Instant windowStart, Instant windowEnd, Aggregations aggregations) {
+        Optional<AggregationWindow> existing = aggregationWindowRepository.findByTenantIdAndCustomerIdAndWindowStart(tenantId, customerId, windowStart);
+        AggregationWindow entity = existing.orElseGet(AggregationWindow::new);
+        entity.setTenantId(tenantId);
+        entity.setCustomerId(customerId);
+        entity.setWindowStart(windowStart);
+        entity.setWindowEnd(windowEnd);
+        entity.setTotalCalls(aggregations.totalCalls().longValue());
+        entity.setTotalTokens(aggregations.totalTokens().longValue());
+        entity.setAvgLatencyMs(aggregations.avgLatencyMs());
+        entity.setAggregationData(jsonHelper.toJson(aggregations));
+        aggregationWindowRepository.save(entity);
     }
 
     private Map<String, Aggregations.SubAggregation> buildSubAggregations(Map<Object, Object> callsMapRaw, Map<Object, Object> tokensMapRaw) {
