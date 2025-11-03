@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class WindowCloseWorker {
 
     private final AggregationWindowService aggregationWindowService;

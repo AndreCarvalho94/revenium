@@ -1,6 +1,5 @@
 package br.com.acdev.revenium;
 
-import br.com.acdev.revenium.worker.WindowCloseWorker;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
@@ -11,8 +10,9 @@ import org.springframework.context.annotation.FilterType;
 @ConfigurationPropertiesScan
 @ComponentScan(excludeFilters = {
         @ComponentScan.Filter(type = FilterType.REGEX, pattern = "br\\.com\\.acdev\\.revenium\\.scheduler.*"),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = br.com.acdev.revenium.ReveniumSchedulerApplication.class),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WindowCloseWorker.class)
+        @ComponentScan.Filter(type = FilterType.REGEX, pattern = "br\\.com\\.acdev\\.revenium\\.worker.*"),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ReveniumSchedulerApplication.class),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ReveniumWorkerApplication.class)
 })
 public class ReveniumApplication {
 

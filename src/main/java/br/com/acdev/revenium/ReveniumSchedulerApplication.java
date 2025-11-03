@@ -13,8 +13,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ConfigurationPropertiesScan
 @ComponentScan(excludeFilters = {
         @ComponentScan.Filter(type = FilterType.REGEX, pattern = "br\\.com\\.acdev\\.revenium\\.controller.*"),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = br.com.acdev.revenium.ReveniumApplication.class),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WindowCloseWorker.class)
+        @ComponentScan.Filter(type = FilterType.REGEX, pattern = "br\\.com\\.acdev\\.revenium\\.worker.*"),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ReveniumApplication.class),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ReveniumWorkerApplication.class)
 })
 @EnableScheduling
 public class ReveniumSchedulerApplication {

@@ -12,8 +12,9 @@ import org.springframework.kafka.annotation.EnableKafka;
 @ConfigurationPropertiesScan
 @ComponentScan(excludeFilters = {
         @ComponentScan.Filter(type = FilterType.REGEX, pattern = "br\\.com\\.acdev\\.revenium\\.controller.*"),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = br.com.acdev.revenium.ReveniumApplication.class),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = br.com.acdev.revenium.ReveniumSchedulerApplication.class)
+        @ComponentScan.Filter(type = FilterType.REGEX, pattern = "br\\.com\\.acdev\\.revenium\\.scheduler.*"),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ReveniumApplication.class),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ReveniumSchedulerApplication.class)
 })
 @EnableKafka
 public class ReveniumWorkerApplication {
