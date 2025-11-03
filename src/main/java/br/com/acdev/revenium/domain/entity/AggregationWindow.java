@@ -3,25 +3,26 @@ package br.com.acdev.revenium.domain.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "aggregation_window")
+@Table(name = "aggregation_windows")
 public class AggregationWindow {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id", nullable = false, columnDefinition = "uuid")
+    private UUID id;
 
-    @Column(name = "tenant_id", nullable = false)
+    @Column(name = "tenant_id", nullable = false, columnDefinition = "uuid")
     private UUID tenantId;
 
-    @Column(name = "customer_id", nullable = false)
+    @Column(name = "customer_id", nullable = false, columnDefinition = "uuid")
     private UUID customerId;
 
     @Column(name = "window_start", nullable = false)
@@ -30,17 +31,9 @@ public class AggregationWindow {
     @Column(name = "window_end", nullable = false)
     private Instant windowEnd;
 
-    @Column(name = "total_calls")
-    private Long totalCalls;
-
-    @Column(name = "total_tokens")
-    private Long totalTokens;
-
-    @Column(name = "avg_latency_ms", precision = 10, scale = 2)
-    private BigDecimal avgLatencyMs;
-
-    @Column(name = "aggregation_data", columnDefinition = "jsonb")
-    private String aggregationData;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "aggregations", columnDefinition = "jsonb", nullable = false)
+    private String aggregations;
 
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
@@ -51,6 +44,7 @@ public class AggregationWindow {
     @PrePersist
     public void prePersist() {
         Instant now = Instant.now();
+        if (this.id == null) this.id = UUID.randomUUID();
         this.createdAt = now;
         this.updatedAt = now;
     }

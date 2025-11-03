@@ -43,7 +43,7 @@ public class AggregationController {
         List<AggregationWindowDto> dtos = entities.stream().map(e -> {
             Aggregations agg = null;
             try {
-                agg = jsonHelper.toObject(e.getAggregationData(), Aggregations.class);
+                agg = jsonHelper.toObject(e.getAggregations(), Aggregations.class);
             } catch (Exception ex) {
                 // ignore parse error, leave agg null
             }

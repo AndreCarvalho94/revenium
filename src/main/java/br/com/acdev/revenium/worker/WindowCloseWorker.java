@@ -42,7 +42,7 @@ public class WindowCloseWorker {
         }
 
         try {
-            var opt = aggregationWindowService.readCurrentAggregation(info.tenantId(), info.customerId());
+            var opt = aggregationWindowService.readAggregation(info.tenantId(), info.customerId(), info.windowStart());
             if (opt.isPresent()) {
                 Aggregations agg = opt.get();
                 Instant windowEnd = windowCalculator.windowEndFromStart(info.windowStart());

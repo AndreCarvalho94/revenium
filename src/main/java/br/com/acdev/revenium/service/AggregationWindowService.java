@@ -30,6 +30,10 @@ public class AggregationWindowService {
     public Optional<Aggregations> readCurrentAggregation(UUID tenantId, UUID customerId) {
         Instant now = Instant.now();
         Instant windowStart = windowCalculator.windowStart(now);
+        return readAggregation(tenantId, customerId, windowStart);
+    }
+
+    public Optional<Aggregations> readAggregation(UUID tenantId, UUID customerId, Instant windowStart) {
         String summaryKey = KeyBaseBuilder.summaryKey(tenantId, customerId, windowStart);
         boolean hasSummary = redis.hasKey(summaryKey);
         if (!hasSummary) {
@@ -53,7 +57,15 @@ public class AggregationWindowService {
                 redis.opsForHash().entries(KeyBaseBuilder.byModelCallsKey(tenantId, customerId, windowStart)),
                 redis.opsForHash().entries(KeyBaseBuilder.byModelTokensKey(tenantId, customerId, windowStart))
         );
-        Aggregations aggregations = Aggregations.builder().totalCalls(Commons.nvl(totalCalls)).totalTokens(Commons.nvl(totalTokens)).totalInputTokens(Commons.nvl(totalInputTokens)).totalOutputTokens(Commons.nvl(totalOutputTokens)).avgLatencyMs(avgLatencyMs).byEndpoint(byEndpoint).byModel(byModel).build();
+        Aggregations aggregations = Aggregations.builder()
+                .totalCalls(Commons.nvl(totalCalls))
+                .totalTokens(Commons.nvl(totalTokens))
+                .totalInputTokens(Commons.nvl(totalInputTokens))
+                .totalOutputTokens(Commons.nvl(totalOutputTokens))
+                .avgLatencyMs(avgLatencyMs)
+                .byEndpoint(byEndpoint)
+                .byModel(byModel)
+                .build();
         return Optional.of(aggregations);
     }
 
@@ -64,10 +76,8 @@ public class AggregationWindowService {
         entity.setCustomerId(customerId);
         entity.setWindowStart(windowStart);
         entity.setWindowEnd(windowEnd);
-        entity.setTotalCalls(aggregations.totalCalls().longValue());
-        entity.setTotalTokens(aggregations.totalTokens().longValue());
-        entity.setAvgLatencyMs(aggregations.avgLatencyMs());
-        entity.setAggregationData(jsonHelper.toJson(aggregations));
+        // store the full aggregation JSON in the 'aggregations' column
+        entity.setAggregations(jsonHelper.toJson(aggregations));
         aggregationWindowRepository.save(entity);
     }
 
