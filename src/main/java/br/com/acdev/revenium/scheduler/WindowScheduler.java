@@ -22,7 +22,7 @@ public class WindowScheduler {
 
     @Scheduled(fixedDelayString = "${scheduler.poll-ms:5000}", initialDelayString = "${scheduler.initial-delay-ms:2000}")
     public void pollOpenWindows() {
-        Set<String> claimed = windowService.claimOpenWindows(10);
+        Set<String> claimed = windowService.claimReadyWindows(10);
         if (claimed == null || claimed.isEmpty()) {
             log.info("No open windows claimed");
             return;
@@ -31,8 +31,6 @@ public class WindowScheduler {
             log.info("Claimed window to close: {}", window);
             boolean ok = producer.publishWindow(window);
             if (!ok) {
-                // re-queue by adding back to the zset with the same score (take score from window string if encoded)
-                // as we don't parse the base we simply reinsert with current timestamp to retry later
                 long score = System.currentTimeMillis() / 1000L;
                 redis.opsForZSet().add(KeyBaseBuilder.OPEN_WINDOWS_KEY, window, score);
                 log.warn("Re-queued window {} after failed publish", window);
