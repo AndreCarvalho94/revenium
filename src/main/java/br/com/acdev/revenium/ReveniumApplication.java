@@ -3,9 +3,12 @@ package br.com.acdev.revenium;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
+@ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = "br\\.com\\.acdev\\.revenium\\.scheduler\\..*"))
 public class ReveniumApplication {
 
 	public static void main(String[] args) {
