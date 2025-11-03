@@ -1,26 +1,32 @@
 # syntax=docker/dockerfile:1.4
 
-# Etapa de build
-FROM maven:3.9.9-eclipse-temurin-21 AS build
+# ======================
+# Build Stage
+# ======================
+FROM maven:3.9.9-eclipse-temurin-21 AS builder
 WORKDIR /app
 
-# Baixa dependências no cache
 COPY pom.xml .
 RUN --mount=type=cache,target=/root/.m2 mvn -q -DskipTests dependency:go-offline
 
-# Copia código e empacota
 COPY src ./src
 RUN --mount=type=cache,target=/root/.m2 mvn -q -DskipTests package
 
-# Etapa de runtime
+# ======================
+# Runtime Stage
+# ======================
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-# Copia o jar final do Spring Boot (repackage)
-COPY --from=build /app/target/*.jar /app/app.jar
+# Copy the repackaged fat JAR explicitly
+COPY --from=builder /app/target/app.jar /app/app.jar
+
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser \
+    && chown -R appuser:appgroup /app
+
+USER appuser
 
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -XX:+UseG1GC"
 EXPOSE 8080
 
-ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/app.jar"]
-
+# Entrypoint/command intentionally left to docker-compose service commands

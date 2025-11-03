@@ -1,23 +1,24 @@
 package br.com.acdev.revenium;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
+
+import java.util.Arrays;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
-@ComponentScan(excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.REGEX, pattern = "br\\.com\\.acdev\\.revenium\\.scheduler.*"),
-        @ComponentScan.Filter(type = FilterType.REGEX, pattern = "br\\.com\\.acdev\\.revenium\\.worker.*"),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ReveniumSchedulerApplication.class),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ReveniumWorkerApplication.class)
-})
 public class ReveniumApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ReveniumApplication.class, args);
+        SpringApplication app = new SpringApplication(ReveniumApplication.class);
+        String profiles = System.getProperty("spring.profiles.active", System.getenv("SPRING_PROFILES_ACTIVE"));
+        boolean isApi = profiles != null && Arrays.stream(profiles.split(","))
+                .map(String::trim)
+                .anyMatch(p -> p.equalsIgnoreCase("api"));
+        app.setWebApplicationType(isApi ? WebApplicationType.SERVLET : WebApplicationType.NONE);
+        app.run(args);
     }
 
 }

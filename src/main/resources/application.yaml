@@ -1,7 +1,7 @@
 # Default configs for containers; can be overridden by environment variables
 spring:
   profiles:
-    active: local
+    active:
   application:
     name: revenium
   datasource:
